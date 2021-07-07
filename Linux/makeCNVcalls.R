@@ -1,5 +1,3 @@
-packrat::on()
-
 library(R.utils)
 
 print("BEGIN makeCNVCalls.R")
@@ -50,9 +48,9 @@ library(ggplot2)
 
 ExomeCount<-as(counts, 'data.frame')											#converts counts, a ranged data object, to a data frame
 
-ExomeCount$chromosome <- gsub(as.character(ExomeCount$space),pattern = 'chr',replacement = '') 
+ExomeCount$chromosome <- gsub(as.character(ExomeCount$chromosome),pattern = 'chr',replacement = '') 
 																				#remove any chr letters, and coerce to a string.
-colnames(ExomeCount)[1:length(sample.names)+6]=sample.names						#assigns the sample names to each column 
+colnames(ExomeCount)[1:length(sample.names)+5]=sample.names						#assigns the sample names to each column 
 
 cnv.calls = NULL
 refs<-list()
@@ -69,7 +67,7 @@ for(i in 1:length(sample.names)){												#for each sample:
     my.reference.selected <- apply(X = my.matrix,MAR = 1,FUN = sum)				#sums the selected samples across each exon
 
     all.exons <- new('ExomeDepth', test = my.test, reference = my.reference.selected, formula = 'cbind(test, reference) ~ 1')       #creates ExomeDepth object containing test data, reference data, and linear relationship between them. Automatically calculates likelihoods
-    all.exons <- CallCNVs(x = all.exons, transition.probability = trans_prob, chromosome = ExomeCount$space, start = ExomeCount$start, end = ExomeCount$end, name = ExomeCount$names)	#fits a HMM with 3 states to read depth data; transition.probability - transition probability for HMM from normal to del/dup. Returns ExomeDepth object with CNVcalls
+    all.exons <- CallCNVs(x = all.exons, transition.probability = trans_prob, chromosome = ExomeCount$chromosome, start = ExomeCount$start, end = ExomeCount$end, name = ExomeCount$exon)	#fits a HMM with 3 states to read depth data; transition.probability - transition probability for HMM from normal to del/dup. Returns ExomeDepth object with CNVcalls
 
     my.ref.counts <- apply(my.matrix, MAR = 1, FUN = sum)
     
@@ -227,6 +225,9 @@ if(Custom){
 
 ####################Plotting####################################
 
+#save(cnv.calls_ids, cnv.calls,exon_numbers, exons, file="/home/raghu/ExonCNV/decon/makeCalls.Rdata")
+#save.image("/home/raghu/ExonCNV/decon/makeCalls.Rdata") 
+
 if(plotOutput!="None"){
 
     if(plotOutput=="Clinical"){
@@ -291,8 +292,8 @@ if(plotOutput!="None"){
         testref<-rep("gray",nrow(Data1))
         testref[Data1$variable==Sample]="blue"
         Data1<-data.frame(Data1,testref)
-        levels(Data1$variable)=c(levels(Data1$variable),"VAR")
-        levels(Data1$testref)=c(levels(Data1$testref),"red")
+        levels(Data1$variable)=c(levels(as.factor(Data1$variable)),"VAR")
+        levels(Data1$testref)=c(levels(as.factor(Data1$testref)),"red")
 
         data_temp<-Data1[Data1$variable==Sample & Data1$exonRange%in%VariantExon,]
 

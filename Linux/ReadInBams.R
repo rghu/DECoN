@@ -1,4 +1,3 @@
-packrat::on()
 print("BEGIN ReadInBams.R")
 
 library(R.utils)
@@ -61,7 +60,7 @@ sample.names<-sapply(bams,multi_strsplit,c("/",".bam"),c(a,1))                  
 names(sample.names)<-NULL
 
 bed.file<-read.table(paste(bedfile))                                                    #reads in the bedfile and gives each column a name - expects 4 columns: chr, start, stop, name/gene.
-colnames(bed.file)<-c("chromosone","start","end","name")
+colnames(bed.file)<-c("chromosome","start","end","name")
  
 counts <- getBamCounts(bed.frame = bed.file, bam.files = bams, include.chr = FALSE, referenceFasta = paste(fasta))
                                                                                         #reads in coverage info from each bam file in 'bams'; expects chromosomes to be given as numbers, eg 1, 2 etc, not chr1, chr2 etc.
